@@ -1,4 +1,6 @@
 // import mongoose from 'mongoose';
+const LaptopRouter =require('./Routes/LaptopRoute')
+const { getAllLaptop } = require('./controller/laptop');
 require('dotenv').config();
 const express = require("express");
 const app =express();
@@ -11,29 +13,11 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(cors());
 
+app.use("/api/addlaptop", LaptopRouter);
+app.use("/api/alllaptop", getAllLaptop);
 const DB = require('./config/db');
-DB();
-// const connectDB = async () => {
-//     try {
-//       await mongoose.connect(
-//         // process.env.MONGODB_URI,
-//         "mongodb+srv://zmzahidhasan181:zahidhasan9@cluster0.cclwvts.mongodb.net/",
 
-//         {
-//           useNewUrlParser: true,
-//           useUnifiedTopology: true,
-//           useCreateIndex: true,
-//           useFindAndModify: false,
-//         }
-//       );
-//       console.log('MongoDB Connected');
-//     } catch (err) {
-//       console.error(err.message);
-//       // exit process with failure
-//       process.exit(1);
-//     }
-//   };
-//   connectDB();
+DB();
 
   const port= process.env.Port
   app.listen( port,()=>{

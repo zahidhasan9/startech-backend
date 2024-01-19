@@ -12,7 +12,7 @@ var LaptopSchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: ["in_stock", "pre-order", "up-comming"],
-      default: "user",
+      default: "up-comming",
     },
     brand: {
       type: String,
@@ -107,19 +107,19 @@ var LaptopSchema = new mongoose.Schema(
         url: String,
       },
     ],
-    color: [],
-    tags: String,
-    ratings: [
-      {
-        star: Number,
-        comment: String,
-        postedby: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-      },
-    ],
-    totalrating: {
-      type: String,
-      default: 0,
-    },
+    // color: [],
+    // tags: String,
+    // ratings: [
+    //   {
+    //     star: Number,
+    //     comment: String,
+    //     postedby: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    //   },
+    // ],
+    // totalrating: {
+    //   type: String,
+    //   default: 0,
+    // },
   },
   { timestamps: true }
 );

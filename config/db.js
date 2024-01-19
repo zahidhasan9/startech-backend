@@ -10,7 +10,7 @@ const setupDB = async () => {
       .connect(process.env.MONGO_URI, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
-        useFindAndModify: false
+        // useFindAndModify: false
       })
       .then(() =>
         // console.log(`${chalk.green('✓')} ${chalk.blue('MongoDB Connected!')}`)

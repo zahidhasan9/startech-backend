@@ -1,274 +1,202 @@
-const express = require('express');
-const router = express.Router();
-const multer = require('multer');
-const Mongoose = require('mongoose');
+const Laptop = require("../models/LaptopModel");
+// const User = require("../models/userModel");
+const asyncHandler = require("express-async-handler");
+const slugify = require("slugify");
+const validateMongoDbId = require("../utils/validateMongodbId");
+const LaptopModel = require("../models/LaptopModel");
 
-// // Bring in Models & Utils
-// const Product = require('../../models/product');
-// const Brand = require('../../models/brand');
-// const Category = require('../../models/category');
-// const auth = require('../../middleware/auth');
-// const role = require('../../middleware/role');
-// const checkAuth = require('../../utils/auth');
-// const { s3Upload } = require('../../utils/storage');
-// const {
-//   getStoreProductsQuery,
-//   getStoreProductsWishListQuery
-// } = require('../../utils/queries');
-// const { ROLES } = require('../../constants');
-
-// const storage = multer.memoryStorage();
-// const upload = multer({ storage });
-
-
-// add product api
-router.post(
-  '/add',
-  auth,
-  role.check(ROLES.Admin, ROLES.Merchant),
-  upload.single('image'),
-  async (req, res) => {
-    try {
-      const sku = req.body.sku;
-      const name = req.body.name;
-      const description = req.body.description;
-      const quantity = req.body.quantity;
-      const price = req.body.price;
-      const taxable = req.body.taxable;
-      const isActive = req.body.isActive;
-      const brand = req.body.brand;
-      const image = req.file;
-
-      if (!sku) {
-        return res.status(400).json({ error: 'You must enter sku.' });
-      }
-
-      if (!description || !name) {
-        return res
-          .status(400)
-          .json({ error: 'You must enter description & name.' });
-      }
-
-      if (!quantity) {
-        return res.status(400).json({ error: 'You must enter a quantity.' });
-      }
-
-      if (!price) {
-        return res.status(400).json({ error: 'You must enter a price.' });
-      }
-
-      const foundProduct = await Product.findOne({ sku });
-
-      if (foundProduct) {
-        return res.status(400).json({ error: 'This sku is already in use.' });
-      }
-
-      const { imageUrl, imageKey } = await s3Upload(image);
-
-      const product = new Product({
-        sku,
-        name,
-        description,
-        quantity,
-        price,
-        taxable,
-        isActive,
-        brand,
-        imageUrl,
-        imageKey
-      });
-
-      const savedProduct = await product.save();
-
-      res.status(200).json({
-        success: true,
-        message: `Product has been added successfully!`,
-        product: savedProduct
-      });
-    } catch (error) {
-      return res.status(400).json({
-        error: 'Your request could not be processed. Please try again.'
-      });
+const createLaptop = asyncHandler(async (req, res) => {
+  try {
+    if (req.body.title) {
+      req.body.slug = slugify(req.body.title);
     }
+    const newLaptop = await Laptop.create(req.body);
+    res.json(newLaptop);
+  } catch (error) {
+    throw new Error(error);
   }
-);
+});
 
-// fetch products api
-router.get(
-  '/',
-  auth,
-  role.check(ROLES.Admin, ROLES.Merchant),
-  async (req, res) => {
-    try {
-      let products = [];
+// const updateProduct = asyncHandler(async (req, res) => {
+//   const id = req.params;
+//   validateMongoDbId(id);
+//   try {
+//     if (req.body.title) {
+//       req.body.slug = slugify(req.body.title);
+//     }
+//     const updateProduct = await Product.findOneAndUpdate({ id }, req.body, {
+//       new: true,
+//     });
+//     res.json(updateProduct);
+//   } catch (error) {
+//     throw new Error(error);
+//   }
+// });
 
-      if (req.user.merchant) {
-        const brands = await Brand.find({
-          merchant: req.user.merchant
-        }).populate('merchant', '_id');
+// const deleteProduct = asyncHandler(async (req, res) => {
+//   const id = req.params;
+//   validateMongoDbId(id);
+//   try {
+//     const deleteProduct = await Product.findOneAndDelete(id);
+//     res.json(deleteProduct);
+//   } catch (error) {
+//     throw new Error(error);
+//   }
+// });
 
-        const brandId = brands[0]?.['_id'];
+// const getaProduct = asyncHandler(async (req, res) => {
+//   const { id } = req.params;
+//   validateMongoDbId(id);
+//   try {
+//     const findProduct = await Product.findById(id);
+//     res.json(findProduct);
+//   } catch (error) {
+//     throw new Error(error);
+//   }
+// });
 
-        products = await Product.find({})
-          .populate({
-            path: 'brand',
-            populate: {
-              path: 'merchant',
-              model: 'Merchant'
-            }
-          })
-          .where('brand', brandId);
-      } else {
-        products = await Product.find({}).populate({
-          path: 'brand',
-          populate: {
-            path: 'merchant',
-            model: 'Merchant'
-          }
-        });
-      }
+const getAllLaptop = asyncHandler(async (req, res) => {
+  try {
+    // Filtering
+    const queryObj = { ...req.query };
+    const excludeFields = ["page", "sort", "limit", "fields"];
+    excludeFields.forEach((el) => delete queryObj[el]);
+    let queryStr = JSON.stringify(queryObj);
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
 
-      res.status(200).json({
-        products
-      });
-    } catch (error) {
-      res.status(400).json({
-        error: 'Your request could not be processed. Please try again.'
-      });
+    let query = Laptop.find(JSON.parse(queryStr));
+
+    // Sorting
+
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(",").join(" ");
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort("-createdAt");
     }
-  }
-);
 
-// fetch product api
-router.get(
-  '/:id',
-  auth,
-  role.check(ROLES.Admin, ROLES.Merchant),
-  async (req, res) => {
-    try {
-      const productId = req.params.id;
+    // limiting the fields
 
-      let productDoc = null;
-
-      if (req.user.merchant) {
-        const brands = await Brand.find({
-          merchant: req.user.merchant
-        }).populate('merchant', '_id');
-
-        const brandId = brands[0]['_id'];
-
-        productDoc = await Product.findOne({ _id: productId })
-          .populate({
-            path: 'brand',
-            select: 'name'
-          })
-          .where('brand', brandId);
-      } else {
-        productDoc = await Product.findOne({ _id: productId }).populate({
-          path: 'brand',
-          select: 'name'
-        });
-      }
-
-      if (!productDoc) {
-        return res.status(404).json({
-          message: 'No product found.'
-        });
-      }
-
-      res.status(200).json({
-        product: productDoc
-      });
-    } catch (error) {
-      res.status(400).json({
-        error: 'Your request could not be processed. Please try again.'
-      });
+    if (req.query.fields) {
+      const fields = req.query.fields.split(",").join(" ");
+      query = query.select(fields);
+    } else {
+      query = query.select("-__v");
     }
-  }
-);
 
-router.put(
-  '/:id',
-  auth,
-  role.check(ROLES.Admin, ROLES.Merchant),
-  async (req, res) => {
-    try {
-      const productId = req.params.id;
-      const update = req.body.product;
-      const query = { _id: productId };
-      const { sku, slug } = req.body.product;
+    // pagination
 
-      const foundProduct = await Product.findOne({
-        $or: [{ slug }, { sku }]
-      });
-
-      if (foundProduct && foundProduct._id != productId) {
-        return res
-          .status(400)
-          .json({ error: 'Sku or slug is already in use.' });
-      }
-
-      await Product.findOneAndUpdate(query, update, {
-        new: true
-      });
-
-      res.status(200).json({
-        success: true,
-        message: 'Product has been updated successfully!'
-      });
-    } catch (error) {
-      res.status(400).json({
-        error: 'Your request could not be processed. Please try again.'
-      });
+    const page = req.query.page;
+    const limit = req.query.limit;
+    const skip = (page - 1) * limit;
+    query = query.skip(skip).limit(limit);
+    if (req.query.page) {
+      const LaptopCount = await Laptop.countDocuments();
+      if (skip >= LaptopCount) throw new Error("This Page does not exists");
     }
+    const laptop = await query;
+    res.json(laptop);
+  } catch (error) {
+    throw new Error(error);
+    console.log(error)
   }
-);
+});
+// const addToWishlist = asyncHandler(async (req, res) => {
+//   const { _id } = req.user;
+//   const { prodId } = req.body;
+//   try {
+//     const user = await User.findById(_id);
+//     const alreadyadded = user.wishlist.find((id) => id.toString() === prodId);
+//     if (alreadyadded) {
+//       let user = await User.findByIdAndUpdate(
+//         _id,
+//         {
+//           $pull: { wishlist: prodId },
+//         },
+//         {
+//           new: true,
+//         }
+//       );
+//       res.json(user);
+//     } else {
+//       let user = await User.findByIdAndUpdate(
+//         _id,
+//         {
+//           $push: { wishlist: prodId },
+//         },
+//         {
+//           new: true,
+//         }
+//       );
+//       res.json(user);
+//     }
+//   } catch (error) {
+//     throw new Error(error);
+//   }
+// });
 
-router.put(
-  '/:id/active',
-  auth,
-  role.check(ROLES.Admin, ROLES.Merchant),
-  async (req, res) => {
-    try {
-      const productId = req.params.id;
-      const update = req.body.product;
-      const query = { _id: productId };
+// const rating = asyncHandler(async (req, res) => {
+//   const { _id } = req.user;
+//   const { star, prodId, comment } = req.body;
+//   try {
+//     const product = await Product.findById(prodId);
+//     let alreadyRated = product.ratings.find(
+//       (userId) => userId.postedby.toString() === _id.toString()
+//     );
+//     if (alreadyRated) {
+//       const updateRating = await Product.updateOne(
+//         {
+//           ratings: { $elemMatch: alreadyRated },
+//         },
+//         {
+//           $set: { "ratings.$.star": star, "ratings.$.comment": comment },
+//         },
+//         {
+//           new: true,
+//         }
+//       );
+//     } else {
+//       const rateProduct = await Product.findByIdAndUpdate(
+//         prodId,
+//         {
+//           $push: {
+//             ratings: {
+//               star: star,
+//               comment: comment,
+//               postedby: _id,
+//             },
+//           },
+//         },
+//         {
+//           new: true,
+//         }
+//       );
+//     }
+//     const getallratings = await Product.findById(prodId);
+//     let totalRating = getallratings.ratings.length;
+//     let ratingsum = getallratings.ratings
+//       .map((item) => item.star)
+//       .reduce((prev, curr) => prev + curr, 0);
+//     let actualRating = Math.round(ratingsum / totalRating);
+//     let finalproduct = await Product.findByIdAndUpdate(
+//       prodId,
+//       {
+//         totalrating: actualRating,
+//       },
+//       { new: true }
+//     );
+//     res.json(finalproduct);
+//   } catch (error) {
+//     throw new Error(error);
+//   }
+// });
 
-      await Product.findOneAndUpdate(query, update, {
-        new: true
-      });
-
-      res.status(200).json({
-        success: true,
-        message: 'Product has been updated successfully!'
-      });
-    } catch (error) {
-      res.status(400).json({
-        error: 'Your request could not be processed. Please try again.'
-      });
-    }
-  }
-);
-
-router.delete(
-  '/delete/:id',
-  auth,
-  role.check(ROLES.Admin, ROLES.Merchant),
-  async (req, res) => {
-    try {
-      const product = await Product.deleteOne({ _id: req.params.id });
-
-      res.status(200).json({
-        success: true,
-        message: `Product has been deleted successfully!`,
-        product
-      });
-    } catch (error) {
-      res.status(400).json({
-        error: 'Your request could not be processed. Please try again.'
-      });
-    }
-  }
-);
-
-module.exports = router;
+module.exports = {
+  createLaptop,
+  // getaProduct,
+  getAllLaptop,
+  // updateProduct,
+  // deleteProduct,
+  // addToWishlist,
+  // rating,
+};
