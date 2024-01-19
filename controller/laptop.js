@@ -17,43 +17,44 @@ const createLaptop = asyncHandler(async (req, res) => {
   }
 });
 
-// const updateProduct = asyncHandler(async (req, res) => {
-//   const id = req.params;
-//   validateMongoDbId(id);
-//   try {
-//     if (req.body.title) {
-//       req.body.slug = slugify(req.body.title);
-//     }
-//     const updateProduct = await Product.findOneAndUpdate({ id }, req.body, {
-//       new: true,
-//     });
-//     res.json(updateProduct);
-//   } catch (error) {
-//     throw new Error(error);
-//   }
-// });
+updateLaptop = async (req, res) => {
+  const { id } = req.params;
+  validateMongoDbId(id);
+  try {
+    if (req.body.title) {
+            req.body.slug = slugify(req.body.title);
+    }
+    const laptop = await Laptop.findByIdAndUpdate(id, req.body, {new:true});
+    const updatedLaptop = await laptop.save()
+    res.status(200).json(updatedLaptop);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+};
 
-// const deleteProduct = asyncHandler(async (req, res) => {
-//   const id = req.params;
-//   validateMongoDbId(id);
-//   try {
-//     const deleteProduct = await Product.findOneAndDelete(id);
-//     res.json(deleteProduct);
-//   } catch (error) {
-//     throw new Error(error);
-//   }
-// });
 
-// const getaProduct = asyncHandler(async (req, res) => {
-//   const { id } = req.params;
-//   validateMongoDbId(id);
-//   try {
-//     const findProduct = await Product.findById(id);
-//     res.json(findProduct);
-//   } catch (error) {
-//     throw new Error(error);
-//   }
-// });
+
+const deleteLaptop = asyncHandler(async (req, res) => {
+  const id = req.params;
+  validateMongoDbId(id);
+  try {
+    const deleteLaptop = await Laptop.findOneAndDelete(id);
+    res.json(deleteLaptop);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+const getaLaptop = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  validateMongoDbId(id);
+  try {
+    const findLaptop = await Laptop.findById(id);
+    res.json(findLaptop);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
 
 const getAllLaptop = asyncHandler(async (req, res) => {
   try {
@@ -98,7 +99,7 @@ const getAllLaptop = asyncHandler(async (req, res) => {
     res.json(laptop);
   } catch (error) {
     throw new Error(error);
-    console.log(error)
+    
   }
 });
 // const addToWishlist = asyncHandler(async (req, res) => {
@@ -193,10 +194,10 @@ const getAllLaptop = asyncHandler(async (req, res) => {
 
 module.exports = {
   createLaptop,
-  // getaProduct,
+  getaLaptop,
   getAllLaptop,
-  // updateProduct,
-  // deleteProduct,
+  updateLaptop,
+  deleteLaptop,
   // addToWishlist,
   // rating,
 };

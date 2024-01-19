@@ -1,6 +1,5 @@
 // import mongoose from 'mongoose';
 const LaptopRouter =require('./Routes/LaptopRoute')
-const { getAllLaptop } = require('./controller/laptop');
 require('dotenv').config();
 const express = require("express");
 const app =express();
@@ -13,8 +12,7 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(cors());
 
-app.use("/api/addlaptop", LaptopRouter);
-app.use("/api/alllaptop", getAllLaptop);
+app.use("/api/laptop", LaptopRouter);
 const DB = require('./config/db');
 
 DB();
