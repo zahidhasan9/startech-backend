@@ -1,7 +1,7 @@
 const mongoose = require("mongoose"); // Erase if already required
 
 // Declare the Schema of the Mongo model
-var LaptopSchema = new mongoose.Schema(
+var ProcessorSchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -13,11 +13,6 @@ var LaptopSchema = new mongoose.Schema(
       required: true,
       enum: ["in_stock", "pre-order", "up-comming"],
       default: "user",
-    },
-    brand: {
-      type: String,
-      required: true,
-      trim: true,
     },
     model: {
       type: String,
@@ -39,16 +34,6 @@ var LaptopSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    display_size: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    display_type: {
-      type: String,
-      required: true,
-      trim: true,
-    },
     ram_size: {
       type: String,
       required: true,
@@ -64,11 +49,7 @@ var LaptopSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    ssd: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+  
     graphics: {
       type: String,
       required: true,
@@ -107,22 +88,10 @@ var LaptopSchema = new mongoose.Schema(
         url: String,
       },
     ],
-    color: [],
-    tags: String,
-    ratings: [
-      {
-        star: Number,
-        comment: String,
-        postedby: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-      },
-    ],
-    totalrating: {
-      type: String,
-      default: 0,
-    },
+  
   },
   { timestamps: true }
 );
 
 //Export the model
-module.exports = mongoose.model("Laptop", LaptopSchema);
+module.exports = mongoose.model("Processor", ProcessorSchema);
