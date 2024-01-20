@@ -1,7 +1,7 @@
 const mongoose = require("mongoose"); // Erase if already required
 
 // Declare the Schema of the Mongo model
-var ProcessorSchema = new mongoose.Schema(
+var RamSchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -12,79 +12,60 @@ var ProcessorSchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: ["in_stock", "pre-order", "up-comming"],
-      default: "user",
+      default: "up-comming",
     },
     brand: {
       type: String,
       required: true,
       trim: true,
     },
-    socket: {
+   
+    ram_type_ddr: {
       type: String,
       required: true,
       trim: true,
     },
-    processor_model: {
+    ram_model: {
       type: String,
       required: true,
       trim: true,
     },
-    processor_generation: {
+    ram_size: {
       type: String,
       required: true,
       trim: true,
     },
-    processor_core: {
+    display_size: {
       type: String,
       required: true,
       trim: true,
     },
-    processor_thread: {
+    ram_bus_speed: {
       type: String,
       required: true,
       trim: true,
     },
-    base_clock_speed: {
+   
+    operating_voltage: {
       type: String,
       required: true,
       trim: true,
     },
-    max_clock_speed: {
+    heat_sink_color: {
       type: String,
       required: true,
       trim: true,
     },
-    cache_memory: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    Default_TDP: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-  
-    graphics: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    Memory_max_size:{
-      type: String,
-      required: true,
-      trim: true,
-    },
-    Memory_type_ddr:{
+    ram_pin: {
       type: String,
       required: true,
       trim: true,
     },
     warranty: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+        type: String,
+        required: true,
+        trim: true,
+      },
     slug: {
       type: String,
       required: true,
@@ -118,10 +99,22 @@ var ProcessorSchema = new mongoose.Schema(
         url: String,
       },
     ],
-  
+    // color: [],
+    // tags: String,
+    // ratings: [
+    //   {
+    //     star: Number,
+    //     comment: String,
+    //     postedby: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    //   },
+    // ],
+    // totalrating: {
+    //   type: String,
+    //   default: 0,
+    // },
   },
   { timestamps: true }
 );
 
 //Export the model
-module.exports = mongoose.model("Processor", ProcessorSchema);
+module.exports = mongoose.model("Ram", RamSchema);

@@ -1,18 +1,22 @@
 // import mongoose from 'mongoose';
-const LaptopRouter =require('./Routes/LaptopRoute')
+const LaptopRoute =require('./Routes/LaptopRoute');
+const ProcessorRoute=require('./Routes/ProcessorRoute');
+const RamRoute=require('./Routes/RamRoute');
 require('dotenv').config();
 const express = require("express");
 const app =express();
 const cors=require('cors');
 const bodyParser = require("body-parser");
-const mongoose  = require("mongoose");
+
 
 
 app.use(express.json());
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(cors());
 
-app.use("/api/laptop", LaptopRouter);
+app.use("/api/laptop", LaptopRoute);
+app.use("/api/processor", ProcessorRoute);
+app.use("/api/ram", RamRoute);
 const DB = require('./config/db');
 
 DB();
