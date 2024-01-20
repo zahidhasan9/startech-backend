@@ -14,12 +14,12 @@ var ProcessorSchema = new mongoose.Schema(
       enum: ["in_stock", "pre-order", "up-comming"],
       default: "user",
     },
-    model: {
+    brand: {
       type: String,
       required: true,
       trim: true,
     },
-    processor_type: {
+    socket: {
       type: String,
       required: true,
       trim: true,
@@ -34,23 +34,53 @@ var ProcessorSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    ram_size: {
+    processor_core: {
       type: String,
       required: true,
       trim: true,
     },
-    ram_type: {
+    processor_thread: {
       type: String,
       required: true,
       trim: true,
     },
-    hard_disk: {
+    base_clock_speed: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    max_clock_speed: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    cache_memory: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    Default_TDP: {
       type: String,
       required: true,
       trim: true,
     },
   
     graphics: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    Memory_max_size:{
+      type: String,
+      required: true,
+      trim: true,
+    },
+    Memory_type_ddr:{
+      type: String,
+      required: true,
+      trim: true,
+    },
+    Warranty: {
       type: String,
       required: true,
       trim: true,

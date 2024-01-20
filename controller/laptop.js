@@ -17,7 +17,7 @@ const createLaptop = asyncHandler(async (req, res) => {
   }
 });
 
-updateLaptop = async (req, res) => {
+const updateLaptop = async (req, res) => {
   const { id } = req.params;
   validateMongoDbId(id);
   try {
