@@ -19,7 +19,12 @@ var RamSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-   
+    ram_for_pc_lep: {
+      type: String,
+      enum: ["laptop", "pc"],
+      required: true,
+      trim: true,
+    },
     ram_type_ddr: {
       type: String,
       required: true,
@@ -31,11 +36,6 @@ var RamSchema = new mongoose.Schema(
       trim: true,
     },
     ram_size: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    display_size: {
       type: String,
       required: true,
       trim: true,
